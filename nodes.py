@@ -1,5 +1,3 @@
-# nodes.py
-
 import json
 
 class ListDifferenceNode:
@@ -7,8 +5,8 @@ class ListDifferenceNode:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "list_a": ("STRING", {"multiline": True}),
-                "list_b": ("STRING", {"multiline": True})
+                "list_a": ("STRING", {"multiline": True, "forceInput": True}),
+                "list_b": ("STRING", {"multiline": True, "forceInput": True})
             }
         }
 
@@ -17,39 +15,40 @@ class ListDifferenceNode:
     OUTPUT_IS_LIST = (True, False)
     OUTPUT_NODE = True
     FUNCTION = "execute"
-    CATEGORY = "Custom"
+    CATEGORY = "nikku"
 
     def execute(self, list_a, list_b):
         """
-        Takes two lists and returns the difference (elements in list_b that are not in list_a)
-        and the total difference (len(list_a) - len(difference_list)).
+        Takes two lists as strings, converts them into lists, performs the set difference operation,
+        and returns the difference as a list and the count of elements.
 
         Args:
-            list_a (str): JSON array or newline-separated list.
-            list_b (str): JSON array or newline-separated list.
+            list_a (str): Multiline string (or JSON array) representing the first list.
+            list_b (str): Multiline string (or JSON array) representing the second list.
 
         Returns:
             tuple: Two elements:
-                   - A list of differences (DifferenceList).
-                   - The total count of remaining elements in list_a after removing the differences (TotalDifference).
+                   - A list of the difference (MergedList).
+                   - The total count of elements in the difference (MergedListCount).
         """
         if not list_a or not list_b:
-            # If either input is None or empty, return an empty list and zero
             return ([], 0)
 
         try:
-            # Attempt to parse inputs as JSON arrays
             list_a = json.loads(list_a)
             list_b = json.loads(list_b)
         except json.JSONDecodeError:
-            # Fallback to newline-separated parsing if JSON fails
-            list_a = list(filter(None, list_a.strip().split('\n')))
-            list_b = list(filter(None, list_b.strip().split('\n')))
+            list_a = list_a.strip().splitlines()
+            list_b = list_b.strip().splitlines()
 
-        # Perform set subtraction: items in list_b that are not in list_a
-        list_merged = list(set(list_b) - set(list_a))
+        # Remove any empty strings from the lists
+        list_a = [item for item in list_a if item.strip()]
+        list_b = [item for item in list_b if item.strip()]
 
-        # new list length
-        list_merged_count = len(list_merged)
+        # Perform set subtraction
+        list_diff = list(set(list_b) - set(list_a))
 
-        return (list_merged, list_merged_count)
+        # Get the count of elements in the difference
+        list_diff_count = len(list_diff)
+
+        return (list_diff, list_diff_count)
