@@ -19,8 +19,8 @@ class ListDifferenceNode:
 
     def execute(self, list_a, list_b):
         """
-        Takes two lists as strings, converts them into lists, performs the set difference operation,
-        and returns the difference as a list and the count of elements.
+        Takes two lists as strings, converts them into sets, performs a set difference operation,
+        and returns the items in list_a that are not in list_b.
 
         Args:
             list_a (str): Multiline string (or JSON array) representing the first list.
@@ -28,7 +28,7 @@ class ListDifferenceNode:
 
         Returns:
             tuple: Two elements:
-                   - A list of the difference (MergedList).
+                   - A list of items in list_a that are not in list_b (MergedList).
                    - The total count of elements in the difference (MergedListCount).
         """
         if not list_a or not list_b:
@@ -45,8 +45,15 @@ class ListDifferenceNode:
         list_a = [item for item in list_a if item.strip()]
         list_b = [item for item in list_b if item.strip()]
 
-        # Perform set subtraction
-        list_diff = list(set(list_b) - set(list_a))
+        # Convert both lists to sets
+        set_a = set(list_a)
+        set_b = set(list_b)
+
+        # Perform set difference: items in set_a that are not in set_b
+        set_diff = set_a - set_b
+
+        # Convert the set back to a list to return
+        list_diff = list(set_diff)
 
         # Get the count of elements in the difference
         list_diff_count = len(list_diff)
