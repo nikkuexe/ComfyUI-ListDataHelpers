@@ -3,11 +3,6 @@
 import json
 
 class ListDifferenceNode:
-    """
-    A ComfyUI node that computes the difference between two lists.
-    It outputs elements that are present in List A but not in List B.
-    """
-
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -21,10 +16,9 @@ class ListDifferenceNode:
     FUNCTION = "execute"
     CATEGORY = "Custom"
 
-    # Update the method signature to accept keyword arguments
     def execute(self, list_a, list_b):
         """
-        Executes the node's functionality.
+        Takes two lists and returns the difference (elements in list_b that are not in list_a).
 
         Args:
             list_a (str): JSON array or newline-separated list.
@@ -33,6 +27,10 @@ class ListDifferenceNode:
         Returns:
             tuple: A single-element tuple containing the JSON-formatted difference list.
         """
+        if not list_a or not list_b:
+            # If either input is None or empty, return an empty JSON array
+            return (json.dumps([]),)
+
         try:
             # Attempt to parse inputs as JSON arrays
             list_a = json.loads(list_a)
@@ -42,4 +40,9 @@ class ListDifferenceNode:
             list_a = list(filter(None, list_a.strip().split('\n')))
             list_b = list(filter(None, list_b.strip().split('\n')))
 
-        # Compute the
+        # Perform set subtraction: items in list_b that are not in list_a
+        difference = list(set(list_b) - set(list_a))
+
+        # Convert the difference list back to a JSON-formatted string
+        difference_str = json.dumps(difference)
+        return (difference_str,)
