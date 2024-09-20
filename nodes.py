@@ -21,29 +21,25 @@ class ListDifferenceNode:
     FUNCTION = "execute"
     CATEGORY = "Custom"
 
-    def execute(self, list_a_str, list_b_str):
+    # Update the method signature to accept keyword arguments
+    def execute(self, list_a, list_b):
         """
         Executes the node's functionality.
 
         Args:
-            list_a_str (str): The first list as a JSON array or newline-separated string.
-            list_b_str (str): The second list as a JSON array or newline-separated string.
+            list_a (str): JSON array or newline-separated list.
+            list_b (str): JSON array or newline-separated list.
 
         Returns:
             tuple: A single-element tuple containing the JSON-formatted difference list.
         """
         try:
             # Attempt to parse inputs as JSON arrays
-            list_a = json.loads(list_a_str)
-            list_b = json.loads(list_b_str)
+            list_a = json.loads(list_a)
+            list_b = json.loads(list_b)
         except json.JSONDecodeError:
             # Fallback to newline-separated parsing if JSON fails
-            list_a = list(filter(None, list_a_str.strip().split('\n')))
-            list_b = list(filter(None, list_b_str.strip().split('\n')))
+            list_a = list(filter(None, list_a.strip().split('\n')))
+            list_b = list(filter(None, list_b.strip().split('\n')))
 
-        # Compute the difference: elements in list_a not in list_b
-        difference = [item for item in list_a if item not in list_b]
-
-        # Convert the difference list back to a JSON-formatted string
-        difference_str = json.dumps(difference)
-        return (difference_str,)
+        # Compute the
