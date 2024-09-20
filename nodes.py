@@ -12,24 +12,30 @@ class ListDifferenceNode:
             }
         }
 
-    RETURN_TYPES = ("STRING",)
+    RETURN_TYPES = ("STRING", "INT",)
+    RETURN_NAMES = ("MergedList", "MergedListCount")
+    OUTPUT_IS_LIST = (True, False)
+    OUTPUT_NODE = True
     FUNCTION = "execute"
     CATEGORY = "Custom"
 
     def execute(self, list_a, list_b):
         """
-        Takes two lists and returns the difference (elements in list_b that are not in list_a).
+        Takes two lists and returns the difference (elements in list_b that are not in list_a)
+        and the total difference (len(list_a) - len(difference_list)).
 
         Args:
             list_a (str): JSON array or newline-separated list.
             list_b (str): JSON array or newline-separated list.
 
         Returns:
-            tuple: A single-element tuple containing the JSON-formatted difference list.
+            tuple: Two elements:
+                   - A list of differences (DifferenceList).
+                   - The total count of remaining elements in list_a after removing the differences (TotalDifference).
         """
         if not list_a or not list_b:
-            # If either input is None or empty, return an empty JSON array
-            return (json.dumps([]),)
+            # If either input is None or empty, return an empty list and zero
+            return ([], 0)
 
         try:
             # Attempt to parse inputs as JSON arrays
@@ -41,8 +47,9 @@ class ListDifferenceNode:
             list_b = list(filter(None, list_b.strip().split('\n')))
 
         # Perform set subtraction: items in list_b that are not in list_a
-        difference = list(set(list_b) - set(list_a))
+        list_merged = list(set(list_b) - set(list_a))
 
-        # Convert the difference list back to a JSON-formatted string
-        difference_str = json.dumps(difference)
-        return (difference_str,)
+        # new list length
+        list_merged_count = len(list_merged)
+
+        return (list_merged, list_merged_count)
