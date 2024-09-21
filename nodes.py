@@ -67,7 +67,7 @@ class VHSSaveOutputFilter:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "input_data": ("STRING", {"forceInput": True}),  # Expecting string that represents a list of tuples
+                "filenames": ("VHS_FILENAMES", {"forceInput": True}),  # Expecting string that represents a list of tuples
             }
         }
 
@@ -76,7 +76,7 @@ class VHSSaveOutputFilter:
     FUNCTION = "execute"
     CATEGORY = "nikku"
 
-    def execute(self, input_data):
+    def execute(self, filenames):
         # List of common video file extensions
         video_extensions = (".mp4", ".webm", ".mkv", ".avi")
 
@@ -85,7 +85,7 @@ class VHSSaveOutputFilter:
 
         # Safely evaluate the string input as a Python literal (list of tuples)
         try:
-            parsed_data = ast.literal_eval(input_data)  # Convert the string into a Python object (list/tuple)
+            parsed_data = ast.literal_eval(filenames)  # Convert the string into a Python object (list/tuple)
         except (SyntaxError, ValueError):
             return ("",)  # If there's an error, return an empty string
 
