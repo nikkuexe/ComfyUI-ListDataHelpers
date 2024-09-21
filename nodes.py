@@ -59,3 +59,42 @@ class ListDifferenceNode:
         list_diff_count = len(list_diff)
 
         return (list_diff, list_diff_count)
+
+class VHSSaveOutputFilter:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "input_data": ("LIST", {"forceInput": True}),  # Expecting list of tuples (True, [file_paths])
+            }
+        }
+
+    RETURN_TYPES = ("LIST",)
+    RETURN_NAMES = ("FilteredVideoFiles",)
+    FUNCTION = "filter_video_files"
+    CATEGORY = "VHS"
+
+    def filter_video_files(self, input_data):
+        # List of common video file extensions
+        video_extensions = (".mp4", ".webm", ".mkv", ".avi")
+
+        # Initialize an empty list to collect video files
+        video_files = []
+
+        # Iterate over input data, which should be tuples (bool, [file_paths])
+        for is_valid, file_paths in input_data:
+            if is_valid and isinstance(file_paths, list):  # Check if the tuple is valid and has a list of paths
+                # Filter only video files based on the extensions
+                video_files.extend([file for file in file_paths if file.endswith(video_extensions)])
+
+        # Return the filtered video files
+        return (video_files,)
+
+
+N_CLASS_MAPPINGS = {
+    "VHS_VideoOutputFilter": VHSSaveOutputFilter,
+}
+
+N_DISPLAY_NAME_MAPPINGS = {
+    "VHS_VideoOutputFilter": "VHS Video Output Filter",
+}
