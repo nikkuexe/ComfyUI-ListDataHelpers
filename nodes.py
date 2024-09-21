@@ -1,4 +1,6 @@
 import json
+import ast
+import os
 
 class ListDifferenceNode:
     @classmethod
@@ -65,30 +67,45 @@ class VHSSaveOutputFilter:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "input_data": ("LIST", {"forceInput": True}),  # Expecting list of tuples (True, [file_paths])
+                "input_data": ("STRING", {"forceInput": True}),  # Expecting string that represents a list of tuples
             }
         }
 
-    RETURN_TYPES = ("LIST",)
-    RETURN_NAMES = ("FilteredVideoFiles",)
-    FUNCTION = "filter_video_files"
-    CATEGORY = "VHS"
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("FilteredVideoFile",)
+    FUNCTION = "execute"
+    CATEGORY = "nikku"
 
-    def filter_video_files(self, input_data):
+    def execute(self, input_data):
         # List of common video file extensions
         video_extensions = (".mp4", ".webm", ".mkv", ".avi")
 
-        # Initialize an empty list to collect video files
-        video_files = []
+        # Base path to remove from the file path
+        base_path = "/workspace/ComfyUI/output/"
 
-        # Iterate over input data, which should be tuples (bool, [file_paths])
-        for is_valid, file_paths in input_data:
+        # Safely evaluate the string input as a Python literal (list of tuples)
+        try:
+            parsed_data = ast.literal_eval(input_data)  # Convert the string into a Python object (list/tuple)
+        except (SyntaxError, ValueError):
+            return ("",)  # If there's an error, return an empty string
+
+        # Iterate over parsed data, which should be tuples (bool, [file_paths])
+        for is_valid, file_paths in parsed_data:
             if is_valid and isinstance(file_paths, list):  # Check if the tuple is valid and has a list of paths
-                # Filter only video files based on the extensions
-                video_files.extend([file for file in file_paths if file.endswith(video_extensions)])
+                for file in file_paths:
+                    # Check if the file is a video file by its extension
+                    if file.endswith(video_extensions):
+                        # Remove the base ComfyUI path
+                        relative_path = file.replace(base_path, "")
 
-        # Return the filtered video files
-        return (video_files,)
+                        # Remove the file extension
+                        filename_without_extension = os.path.splitext(relative_path)[0]
+
+                        # Return the first matching video file (subfolder path + filename without extension)
+                        return (filename_without_extension,)
+
+        # If no video file is found, return an empty string
+        return ("",)
 
 
 N_CLASS_MAPPINGS = {
